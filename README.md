@@ -1,7 +1,3 @@
-Sure! Here’s a more concise version of the README for your poker game project:
-
----
-
 # Simplified Poker Game
 
 This project is a **Simplified Poker Game** built with **Next.js (TypeScript)** for the frontend and **FastAPI (Python)** for the backend. It simulates a poker environment with basic poker actions and multiple game rounds.
@@ -16,7 +12,7 @@ This project is a **Simplified Poker Game** built with **Next.js (TypeScript)** 
 
 ## Technologies
 
-- **Frontend**: Next.js, TypeScript, Zustand
+- **Frontend**: Next.js, TypeScript, Zustand, shadcn
 - **Backend**: FastAPI, Python, PostgreSQL
 - **Development**: Docker, Docker Compose
 
@@ -33,12 +29,12 @@ This project is a **Simplified Poker Game** built with **Next.js (TypeScript)** 
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-username/simplified-poker-game.git
-   cd simplified-poker-game
+   cd pocker_game
    ```
 
 2. Build and run with Docker:
    ```bash
-   docker-compose up -d --build --no-cache
+   docker-compose up -d 
    ```
 
 ### Running the Project
@@ -59,15 +55,3 @@ To run tests:
    ```bash
    docker run your-project-name npm test  # Adjust command as needed
    ```
-
-## Contributing
-
-Fork the repository, create a feature branch, and submit a pull request.
-
-## License
-
-This project is licensed under the MIT License.
-
----
-
-Feel free to modify any section as necessary! Let me know if there are any additional details you'd like to include or if you want to adjust the language further.
