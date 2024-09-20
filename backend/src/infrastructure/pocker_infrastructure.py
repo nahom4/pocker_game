@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2 import sql
 import configparser
-from src.models import Hand, HandResponse
+from src.models.pocker_models import Hand, HandResponse
 
 config = configparser.ConfigParser(interpolation=None)
 config.read('config.ini')

@@ -1,8 +1,8 @@
 import io
 import uuid
 from pokerkit import HandHistory, NoLimitTexasHoldem, Automation
-from src.repository import HandRepository
-from src.models import GameState, HandResponse, Hand, Action
+from src.repositories.pocker_repository import HandRepository
+from src.models.pocker_models import GameState, HandResponse, Hand, Action
 
 
 class PokerService:
@@ -15,65 +15,119 @@ class PokerService:
         self.big_blind = 40
         self.small_blind = self.big_blind // 2
         self.num_players = 6
-        self.starting_stack = stack  # Replace 'stack' with the actual value passed during initialization
-        self.round_action = []  
+        self.starting_stack = stack
+        self.round_action = []
         self.buffer = io.BytesIO()
-        self.game = NoLimitTexasHoldem(
-        (
-            Automation.ANTE_POSTING,
-            Automation.BET_COLLECTION,
-            Automation.BLIND_OR_STRADDLE_POSTING,
-            Automation.HOLE_CARDS_SHOWING_OR_MUCKING,
-            Automation.HAND_KILLING,
-            Automation.CHIPS_PUSHING,
-            Automation.CHIPS_PULLING,
-            Automation.HOLE_DEALING
-        ),
-        True,  # Indicates the game is automated
-        0,     # Initial pot size (assuming no ante)
-        (0, self.small_blind, self.big_blind),  # (ante, small blind, big blind)
-        self.big_blind
-    )
 
-        # Create the state based on the initialized game
-        self.current_hand = self.game(
-            [self.starting_stack] * self.num_players,  # Player stack sizes dynamically from variables
-            self.num_players  # Number of players dynamically from variables
+        self.game = NoLimitTexasHoldem(
+            (
+                Automation.ANTE_POSTING,
+                Automation.BET_COLLECTION,
+                Automation.BLIND_OR_STRADDLE_POSTING,
+                Automation.HOLE_CARDS_SHOWING_OR_MUCKING,
+                Automation.HAND_KILLING,
+                Automation.CHIPS_PUSHING,
+                Automation.CHIPS_PULLING,
+                Automation.HOLE_DEALING
+            ),
+            True,
+            0,
+            (0, self.small_blind, self.big_blind),
+            self.big_blind
         )
 
-        
+        self.current_hand = self.game(
+            [self.starting_stack] * self.num_players,
+            self.num_players
+        )
+
         cards_dealt = self.get_hole_cards()
         small_blind_index = self.current_hand.bets.index(self.small_blind)
         big_blind_index = (small_blind_index + 1) % self.num_players
         dealer_index = (small_blind_index - 1) % self.num_players
+
         hand_uuid = str(uuid.uuid4())
         hand = Hand(
-            hand_uuid=hand_uuid, stack=self.starting_stack,
-            dealer=dealer_index, small_blind_index=small_blind_index, big_blind_index=big_blind_index
+            hand_uuid=hand_uuid,
+            stack=self.starting_stack,
+            dealer=dealer_index,
+            small_blind_index=small_blind_index,
+            big_blind_index=big_blind_index
         )
 
         serialized_hand = self.get_serialized_hand()
         self.repo.save_serialized_hand(hand_uuid, serialized_hand)
         self.repo.save_hand(hand)
         self.repo.save_player_hand(hand_uuid, cards_dealt)
+
         hand_response = HandResponse(
-            hand_uuid=hand_uuid, stack=self.starting_stack,
-            dealer=dealer_index, small_blind=small_blind_index,
-            big_blind=big_blind_index, players_hand=cards_dealt,
-            big_blind_amount=self.big_blind, small_blind_amount=self.small_blind
+            hand_uuid=hand_uuid,
+            stack=self.starting_stack,
+            dealer=dealer_index,
+            small_blind=small_blind_index,
+            big_blind=big_blind_index,
+            players_hand=cards_dealt,
+            big_blind_amount=self.big_blind,
+            small_blind_amount=self.small_blind
         )
+
         return hand_response
 
+
     def take_action(self, action: Action):
+        
         serialized_hand = self.repo.get_serialized_hand(action.hand_uuid)
         self.deserialize_hand(serialized_hand)
 
         if not self.current_hand:
             raise Exception("No hand is currently in progress")
 
-        amount = 0
+        game_state = GameState()
         current_player = self.current_hand.actor_index
+        final_pot = self.current_hand.total_pot_amount
         max_bet = max(self.current_hand.bets)
+        cards_dealt = ""
+       
+        try:
+            action.amount = self.process_actions(
+                action=action,
+                max_bet=max_bet,
+                current_player=current_player
+            )
+        except:
+            return 
+        
+        if not self.game_over() and self.round_over():
+            game_state.round_dealing,cards_dealt = self.change_round()
+            cards_dealt =  f" {cards_dealt} "
+            game_state.round_changed = True
+            self.round_action = []
+
+        if self.game_over():  
+            print(action)
+            if action.action_type != 'fold':
+                final_pot += action.amount 
+            
+            game_state.final_pot = final_pot
+            payoffs = self.current_hand.payoffs
+            game_state.game_ended = True
+            game_state.winnings = payoffs
+            self.repo.save_payoffs(action.hand_uuid, payoffs)
+
+        game_state.action = action
+        game_state.current_player = current_player
+        game_state.valid_actions = self.get_valid_actions()
+        game_state.max_bet_or_raise_amount = self.max_bet_or_raise_amount()
+        serialized_hand = self.get_serialized_hand()
+        encoded_action = self.encode_action(action)
+        self.repo.save_round_action(action.hand_uuid, encoded_action + cards_dealt)
+        self.repo.save_serialized_hand(action.hand_uuid, serialized_hand)
+        print(self.current_hand.max_completion_betting_or_raising_to_amount)
+        return game_state
+
+
+    def process_actions(self, action, max_bet, current_player):
+        amount = 0
         if action.action_type == 'fold':
             amount = self.current_hand.fold()
         elif action.action_type == 'check':
@@ -88,36 +142,8 @@ class PokerService:
             player_stack_size = self.current_hand.get_effective_stack(current_player)
             amount = self.current_hand.complete_bet_or_raise_to(player_stack_size)
 
-        action.amount = amount
-        game_state = GameState()
-        game_over = self.current_hand.street_index is None
-        round_over = self.current_hand.turn_index is None
-        cards_dealt = ""
-
-        if not game_over and round_over:
-            current_round = self.current_hand.street_index
-            game_state.round_dealing,cards_dealt = self.change_round()
-            cards_dealt =  f" {cards_dealt} "
-            game_state.round_changed = True
-            self.round_action = []
-
-        if self.current_hand.street_index is None:  
-            payoffs = self.current_hand.payoffs
-            game_state.game_ended = True
-            game_state.winnings = payoffs
-            self.repo.save_payoffs(action.hand_uuid, payoffs)
-
-        game_state.action = action
-        game_state.current_player = current_player
-        game_state.valid_actions = self.get_valid_actions()
-
-        serialized_hand = self.get_serialized_hand()
-        encoded_action = self.encode_action(action)
-        self.repo.save_round_action(action.hand_uuid, encoded_action + cards_dealt)
-        self.repo.save_serialized_hand(action.hand_uuid, serialized_hand)
-
-        return game_state
-
+        return amount
+    
     def change_round(self):
         round_dealings = []
         while self.current_hand.can_burn_card():
@@ -131,8 +157,8 @@ class PokerService:
             else:
                 cards_dealt = ''.join(board_cards[-1])
                 
+            round_dealings.append([round_name,cards_dealt] ) 
 
-        round_dealings.append([round_name,cards_dealt] )                
         return round_dealings,cards_dealt
 
     def get_valid_actions(self):
@@ -149,7 +175,6 @@ class PokerService:
         actions[4] = betting_has_started and bet_raise
         actions[5] = betting_has_started and bet_raise
 
-        print(actions)
         return actions
 
     def encode_action(self, action : Action):
@@ -206,4 +231,15 @@ class PokerService:
             Automation.HOLE_DEALING
         )
 
+    def game_over(self):
+        return self.current_hand.street_index is None
+    
+    def round_over(self):
+        return self.current_hand.turn_index is None
+    
+    def max_bet_or_raise_amount(self):
+        if self.current_hand.max_completion_betting_or_raising_to_amount:
+            return (self.current_hand.max_completion_betting_or_raising_to_amount
+            - max(self.current_hand.bets))
         
+        return 0

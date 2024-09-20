@@ -1,5 +1,5 @@
-from src.infrastructure import HandInfrastructure
-from src.models import Hand
+from src.infrastructure.pocker_infrastructure import HandInfrastructure
+from src.models.pocker_models import Hand
 
 class HandRepository:
     def __init__(self) -> None:

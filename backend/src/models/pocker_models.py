@@ -61,3 +61,5 @@ class GameState:
     game_ended: bool = False
     current_player: int = 0
     valid_actions: List[bool] = field(default_factory=list)
+    final_pot : int = 0
+    max_bet_or_raise_amount : int = 0
