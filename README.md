@@ -42,16 +42,4 @@ This project is a **Simplified Poker Game** built with **Next.js (TypeScript)** 
 - Access the frontend at `http://localhost:3000`
 - Access the backend at `http://localhost:8000`
 
-## Testing
 
-To run tests:
-
-1. Build the Docker image:
-   ```bash
-   docker build -t your-project-name .
-   ```
-
-2. Run the tests:
-   ```bash
-   docker run your-project-name npm test  # Adjust command as needed
-   ```
