@@ -4,7 +4,7 @@ export class PokerGamePage {
   constructor(private page: Page) {}
 
   async goto() {
-    await this.page.goto('/');
+    await this.page.goto('http://127.0.0.1:3000/');
   }
 
   async startNewHand() {

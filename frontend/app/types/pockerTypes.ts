@@ -15,6 +15,8 @@ export interface Action {
     game_ended : boolean;
     current_player : number;
     valid_actions: Array<boolean>;
+    final_pot : number;
+    max_bet_or_raise_amount : number;
   }
  
  

@@ -67,7 +67,7 @@ const PokerGame = () => {
       <div className="left-section  w-[60%] p-2 flex flex-col">
         <h1 className="text-2xl  font-bold"  data-testid="poker.game-title">Poker Game</h1>
         <div className="h-[80%]  text-sm text-gray-700">
-          <div className="flex justify-between p-2">
+          <div className="flex justify-between flex-wrap p-2 gap-2">
             <h2>Stacks</h2>
             <input 
               type="text" 

@@ -9,9 +9,6 @@ interface HandLogProps {
 const HandLog: React.FC<HandLogProps> = ({ gameStates, newGameStarted }) => {
  
   const gameState = gameStates[gameStates.length - 1];
-  const finalPot = gameState?.game_ended 
-  ? gameState.winnings.reduce((sum, winnings) => sum + (winnings > 0 ? winnings : 0), 0)
-  : 0;
 
   if (gameStates.length === 0 || !newGameStarted) {
     return null;
@@ -43,7 +40,7 @@ const HandLog: React.FC<HandLogProps> = ({ gameStates, newGameStarted }) => {
       {gameState && gameState.game_ended  && (
         <p className="text-green-600 text-lg" data-testid="game-ended">
           <strong>Hand: #{gameState.action.hand_uuid} has ended.</strong><br></br>
-          <strong>Final Pot was {finalPot} dollars.</strong> 
+          <strong>Final Pot was {gameState.final_pot} dollars.</strong> 
         </p>
       )}
     </div>

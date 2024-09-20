@@ -48,19 +48,37 @@ export const usePokerStore = create<PokerState>((set) => ({
   setHandHistory: (history) => set({ handHistory: history }),
   setNewGameStarted: (newGameStarted) => set({ newGameStarted }),
   startNewHand: async (stack) => {
-    const hand = await pokerAPI.startHand(stack);
-    // console.log(hand,"hand from store")
-    set({ hand });
+    try{
+
+      const hand = await pokerAPI.startHand(stack);
+      // console.log(hand,"hand from store")
+      set({ hand });
+    }
+    catch(e){
+      console.log(e)
+    }
   },
   logAction: async (action: Action) => {
-    const gameState = await pokerAPI.logAction(action);
-    set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
-    console.log(gameState,"gameState from store")
+    try{
+
+      const gameState = await pokerAPI.logAction(action);
+      set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
+      console.log(gameState,"gameState from store")
+    }
+    catch(e){
+      console.error(e)  
+    }
   },
   fetchHandHistory: async () => {
-    const handHistory = await pokerAPI.getHandHistory();
-    console.log(handHistory,"handHistory from store")
-    set({ handHistory });
+    try{
+
+      const handHistory = await pokerAPI.getHandHistory();
+      console.log(handHistory,"handHistory from store")
+      set({ handHistory });
+    }
+    catch(e){
+      console.error(e)  
+    }
   },
   resetStore: () => set({
     hand: sampleHand,

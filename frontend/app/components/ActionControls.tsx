@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Action, GameState, Hand } from "../types/pockerTypes";
 import { Button } from "@/components/ui/button"
 
@@ -11,13 +11,15 @@ interface ActionControlsProps {
 
 const ActionControls: React.FC<ActionControlsProps> = ({ onAction, gameStates, hand, newGameStarted }) => {
   const [amount, setAmount] = useState(40);
+  const maxBetOrRaiseAmountRef = useRef(hand.stack );  
+  maxBetOrRaiseAmountRef.current = hand.stack - hand.big_blind_amount;
   
   const handleDecreaseBet = () => {
-    setAmount(prevAmount => Math.max(prevAmount - 40, 40));
+  setAmount(prevAmount => Math.max(prevAmount - 40, 40));
   };
   
   const handleIncreaseBet = () => {
-    setAmount(prevAmount => prevAmount + 40);
+    setAmount(prevAmount => Math.min(prevAmount + 40, maxBetOrRaiseAmountRef.current));
   };
 
   let validActions = [true, false, true, false, true, true];
@@ -25,6 +27,7 @@ const ActionControls: React.FC<ActionControlsProps> = ({ onAction, gameStates, h
   if (gameStates.length > 0) {
     const gameState = gameStates[gameStates.length - 1];
     validActions = gameState.valid_actions;
+    maxBetOrRaiseAmountRef.current = gameState.max_bet_or_raise_amount
   }
 
   useEffect(() => {
@@ -34,6 +37,7 @@ const ActionControls: React.FC<ActionControlsProps> = ({ onAction, gameStates, h
         setAmount(40);
       }
     }
+      setAmount(40);
   }, [gameStates]);
 
   const handleActionClick = (action_type: string) => {
@@ -60,9 +64,9 @@ const ActionControls: React.FC<ActionControlsProps> = ({ onAction, gameStates, h
       {/* Bet (includes amount control) */}
       {validActions[3] && (
         <div className="flex gap-2" data-testid="bet-controls">
-          <Button onClick={() => setAmount(amount - 40)} data-testid="decrease-bet">-</Button>
+          <Button onClick={handleDecreaseBet} data-testid="decrease-bet">-</Button>
           <Button onClick={() => handleActionClick("bet")} data-testid="bet-button">Bet {amount}</Button>
-          <Button onClick={() => setAmount(amount + 40)} data-testid="increase-bet">+</Button>
+          <Button onClick={handleIncreaseBet} data-testid="increase-bet">+</Button>
         </div>
       )}
 
