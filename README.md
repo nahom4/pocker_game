@@ -28,7 +28,7 @@ This project is a **Simplified Poker Game** built with **Next.js (TypeScript)** 
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/simplified-poker-game.git
+   git clone https://github.com/nahom4/pocker_game.git
    cd pocker_game
    ```
 
@@ -40,6 +40,6 @@ This project is a **Simplified Poker Game** built with **Next.js (TypeScript)** 
 ### Running the Project
 
 - Access the frontend at `http://localhost:3000`
-- Access the backend at `http://localhost:8000`
+
 
 
