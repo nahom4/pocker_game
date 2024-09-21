@@ -5,10 +5,10 @@ This project is a **Simplified Poker Game** built with **Next.js (TypeScript)** 
 ## Features
 
 - Multiplayer poker game simulation
-- Actions: Bet, Call, Fold, Raise, Check
+- Actions: Bet, Call, Fold, Raise, Check, Allin
 - Game rounds: Pre-Flop, Flop, Turn, River, Showdown
 - State management using Zustand
-- Real-time interaction with FastAPI
+- RESTful interaction with FastAPI
 
 ## Technologies
 
