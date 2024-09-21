@@ -38,8 +38,8 @@ const HandHistory: React.FC<HandHistoryProps> = ({ history, gameStates, fetchHan
 
           <p className="text-sm text-gray-700" data-testid={`hand-info-${index}`}>
             <strong>Stack:</strong> {hand.stack} | <strong>Dealer:</strong> Player {hand.dealer} | 
-            <strong> Small Blind:</strong> Player {hand.small_blind} ({hand.small_blind_amount} chips) | 
-            <strong> Big Blind:</strong> Player {hand.big_blind} ({hand.big_blind_amount} chips)
+            <strong> Small Blind:</strong> Player {hand.small_blind} | 
+            <strong> Big Blind:</strong> Player {hand.big_blind}
           </p>
 
 

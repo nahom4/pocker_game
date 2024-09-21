@@ -172,7 +172,7 @@ class HandInfrastructure:
                         hand_uuid=hand_uuid,
                         stack=hand.stack,
                         dealer=hand.dealer,
-                        small_blind=hand.dealer,
+                        small_blind=hand.small_blind_index,
                         big_blind=hand.big_blind_index,
                         small_blind_amount=0,
                         big_blind_amount=0,
