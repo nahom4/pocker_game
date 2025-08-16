@@ -1,4 +1,4 @@
-from src.infrastructure.pocker_infrastructure import HandInfrastructure
+from src.infrastructure.pocker_infrastructure_sqlite_memory import HandInfrastructure
 from src.models.pocker_models import Hand
 
 class HandRepository:
