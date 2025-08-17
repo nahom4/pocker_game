@@ -1,54 +1,58 @@
 import React from 'react';
 
 interface PlayingCardProps {
-  suit: 'hearts' | 'diamonds' | 'clubs' | 'spades';
-  rank: 'A' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | 'J' | 'Q' | 'K';
-  faceDown?: boolean;
+  suit?: string;
+  rank?: string;
+  isHidden?: boolean;
   className?: string;
 }
 
-const suitSymbols = {
-  hearts: '♥',
-  diamonds: '♦',
-  clubs: '♣',
-  spades: '♠'
-};
-
-const suitColors = {
-  hearts: 'text-red-600',
-  diamonds: 'text-red-600',
-  clubs: 'text-gray-900',
-  spades: 'text-gray-900'
-};
-
-export const PlayingCard: React.FC<PlayingCardProps> = ({
-  suit,
-  rank,
-  faceDown = false,
-  className = ''
+const PlayingCard: React.FC<PlayingCardProps> = ({ 
+  suit, 
+  rank, 
+  isHidden = false, 
+  className = "" 
 }) => {
-  if (faceDown) {
+  const getSuitSymbol = (suit: string) => {
+    switch (suit) {
+      case 'h': return '♥️';
+      case 'd': return '♦️';
+      case 'c': return '♣️';
+      case 's': return '♠️';
+      default: return '';
+    }
+  };
+
+  const getSuitColor = (suit: string) => {
+    return suit === 'hearts' || suit === 'diamonds' ? 'text-red-600' : 'text-black';
+  };
+
+  if (isHidden) {
     return (
-      <div className={`w-16 h-24 bg-blue-600 rounded-lg border-2 border-gray-400 shadow-lg flex items-center justify-center ${className}`}>
-        <div className="w-12 h-20 bg-blue-800 rounded-md flex items-center justify-center">
-          <div className="w-8 h-16 bg-blue-900 rounded-sm"></div>
+      <div className={`w-12 h-16 bg-blue-900 border border-gray-300 rounded-lg flex items-center justify-center shadow-md ${className}`}>
+        <div className="w-8 h-12 bg-blue-800 rounded border border-blue-700 flex items-center justify-center">
+          <div className="w-6 h-8 border-2 border-blue-600 rounded"></div>
         </div>
       </div>
     );
   }
 
+  if (!suit || !rank) {
+    return (
+      <div className={`w-12 h-16 bg-gray-200 border border-gray-300 rounded-lg shadow-md ${className}`}>
+      </div>
+    );
+  }
+
   return (
-    <div className={`w-16 h-24 bg-white rounded-lg border-2 border-gray-400 shadow-lg p-1 ${className}`}>
-      <div className="flex flex-col items-center justify-between h-full">
-        <div className={`text-lg font-bold ${suitColors[suit]}`}>
-          {rank}
-        </div>
-        <div className={`text-2xl ${suitColors[suit]}`}>
-          {suitSymbols[suit]}
-        </div>
-        <div className={`text-lg font-bold ${suitColors[suit]} transform rotate-180`}>
-          {rank}
-        </div>
+    <div className={`w-12 h-16 bg-white border border-gray-300 rounded-lg shadow-md flex flex-col justify-between p-1 ${className}`}>
+      <div className={`flex flex-col items-center ${getSuitColor(suit)}`}>
+        <span className="text-xs font-bold leading-none">{rank}</span>
+        <span className="text-sm leading-none">{getSuitSymbol(suit)}</span>
+      </div>
+      <div className={`flex flex-col items-center rotate-180 ${getSuitColor(suit)}`}>
+        <span className="text-xs font-bold leading-none">{rank}</span>
+        <span className="text-sm leading-none">{getSuitSymbol(suit)}</span>
       </div>
     </div>
   );

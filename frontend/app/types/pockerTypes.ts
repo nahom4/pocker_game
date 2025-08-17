@@ -32,8 +32,20 @@ export interface Action {
     players_hand : string[];
     actions : string[];
     winnings : number[];
+    players : Player[];
    
 }
+
+
+export interface Player {
+  id: number;
+  name: string;
+  stack: number;
+  position: string;
+  isHuman: boolean;
+  cards: Array<{ suit: string; rank: string }>;
+};
+
 
 export interface StartHandRequest{
   stack : number;
