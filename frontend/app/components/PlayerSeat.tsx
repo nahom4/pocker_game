@@ -3,6 +3,7 @@ import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
 import PlayingCard from './PlayingCard';
 import { GameState } from '../types/pockerTypes';
+import { usePokerStore } from '../store/pockerStore';
 
 interface PlayerSeatProps {
   player: {
@@ -24,8 +25,9 @@ const PlayerSeat: React.FC<PlayerSeatProps> = ({
   isCurrentPlayer, 
   isDealer, 
   className = "" ,
-  gameStates
 }) => {
+  const {action } = usePokerStore();
+
   return (
     <div className={`flex items-center space-y-1 ${className}`}>
       <div className="flex space-x-0.5">
@@ -48,7 +50,7 @@ const PlayerSeat: React.FC<PlayerSeatProps> = ({
         ) : null}
       </div>
       {/* Player Info Card */}
-      <Card className={`bg-black/40 border-white/30 transition-all duration-300 ${
+      <Card className={`mx-2 bg-black/40 border-white/30 transition-all duration-300 ${
         isCurrentPlayer ? 'ring-2 ring-yellow-400 bg-yellow-900/30' : ''
       }`}>
         <CardContent className="p-2 flex flex-col items-center space-y-1 min-w-[120px]">
@@ -88,13 +90,13 @@ const PlayerSeat: React.FC<PlayerSeatProps> = ({
         </CardContent>
       </Card>
       
-       {isCurrentPlayer && gameStates && (
-        <div className="text-white text-sm">
-          {
-          gameStates[gameStates.length - 1].action.action_type
-          }
-        </div>
-       )}
+      {isCurrentPlayer && action  && (
+      <div className="mt-1">
+       <span className="inline-block bg-yellow-600/30 text-yellow-100 text-sm px-3 py-2 rounded-full">
+      {action}
+       </span>
+      </div>
+      )}
       
     </div>
   );

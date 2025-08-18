@@ -16,6 +16,10 @@ interface PokerState {
   gameEnded: boolean;
   winner: boolean;
   currentPlayerId: number;
+  action: string;
+  pot: number;
+  amount: number;
+  communityCard : Card[];
   applyStack : (stack : number) => void;
   setHand : (hand : Hand) => void;
   setGameState : (gameState : GameState) => void;
@@ -24,10 +28,11 @@ interface PokerState {
   setGameEnded : (gameEnded : boolean) => void;
   setCurrentPlayerId : (currentPlayerId : number) => void;
   setWinner : (winner: boolean) => void;
+  setAmount: (amount: number) => void;
   setHumanPlayerPosition: (position: number) => void;
   startNewHand: (startHandRequest : StartHandRequest) => Promise<void>;
   logAction: (action: Action) => Promise<void>;
-  logAIAction: (action: Action) => Promise<void>;
+  // logAIAction: (action: Action) => Promise<void>;
   fetchHandHistory: () => Promise<void>;
   resetStore: () => void;
   processAITurn: () => Promise<void>;
@@ -72,6 +77,22 @@ function formatHand(hand: string): Card[] {
   return cards;
 }
 
+function switchTurn(set,get,gameState){
+  if (!gameState.game_ended) {
+    setTimeout(() => {
+      set({currentPlayerId : (gameState.current_player + 1) % 6})
+      const isHuman = get().currentPlayerId === get().humanPlayerPosition;
+      set({ isHumanTurn: isHuman });
+
+      if (!isHuman){
+        get().processAITurn()
+      }
+      set({action : ''})
+
+    }, 1000);
+  }
+}
+
 export const usePokerStore = create<PokerState>((set, get) => ({
   stack : 1000,
   hand : sampleHand,
@@ -83,6 +104,10 @@ export const usePokerStore = create<PokerState>((set, get) => ({
   humanPlayerPosition: 3, // Default to player 0
   isHumanTurn: false,
   currentPlayerId: 3,
+  action: '',
+  pot: 60,
+  amount: 40,
+  communityCard : [],
   applyStack : (stack: number) => set({stack}),
   setHand : (hand: Hand) => set({ hand }),
   setGameState: (gameState: GameState) => set((state) => ({ gameStates: state.gameStates.concat(gameState) })),
@@ -92,6 +117,7 @@ export const usePokerStore = create<PokerState>((set, get) => ({
   setWinner : (winner : boolean) => set({winner}), 
   setHumanPlayerPosition: (position: number) => set({ humanPlayerPosition: position }),
   setCurrentPlayerId : (currentPlayerId: number) => set({currentPlayerId}),
+  setAmount : (amount : number) => set({amount}),
   startNewHand: async (startHandRequest: StartHandRequest) => {
     try{
       const state = get();
@@ -117,52 +143,55 @@ export const usePokerStore = create<PokerState>((set, get) => ({
   logAction: async (action: Action) => {
     try{
       const gameState = await pokerAPI.logAction(action);
-      set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
-      
-      // Check if it's human's turn next
-      const isHuman = gameState.current_player === get().humanPlayerPosition;
-      set({currentPlayerId : (gameState.current_player + 1) % 6})
-      set({ isHumanTurn: isHuman });
-      
-      // If it's AI's turn, process it automatically
-      if (!isHuman && !gameState.game_ended) {
-        setTimeout(() => get().processAITurn(), 1000);
+      if (action.action_type === 'bet' || action.action_type === 'raise' ){
+
+        set({action: `${action.action_type} ${action.amount ||  ''}`})
       }
+      else{
+        set({action: action.action_type })
+      }
+      set({pot : get().pot + (action.amount || 0) }) 
+      set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
+        
+      switchTurn(set,get,gameState)
+    
+      if (gameState.round_changed) {
+          set({amount :  40})
+          const roundDealings = formatHand(gameState.round_dealing[0][1])
+          set({communityCard : [...get().communityCard, ...roundDealings]})
+      }
+          
     }
     catch(e){
       console.error(e)  
     }
   },
-  logAIAction: async (action: Action) => {
-    try{
-      const gameState = await pokerAPI.logAction(action);
-      set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
+  // logAIAction: async (action: Action) => {
+  //   debugger
+  //   try{
+  //     const gameState = await pokerAPI.logAction(action);
+  //     set({action : action.action_type})
+  //     set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
       
-      // Check if it's human's turn next
-      const isHuman = gameState.current_player === get().humanPlayerPosition;
-      set({ isHumanTurn: isHuman });
-      set({currentPlayerId : (gameState.current_player + 1) % 6})
-      
-      // Continue AI turns if still AI's turn
-      if (!isHuman && !gameState.game_ended) {
-        setTimeout(() => get().processAITurn(), 1000);
-      }
-    }
-    catch(e){
-      console.error(e)  
-    }
-  },
+  //     switchTurn(set,get,gameState)
+    
+  //   }
+  //   catch(e){
+  //     console.error(e)  
+  //   }
+  // },
   processAITurn: async () => {
+    debugger
     const state = get();
     if (state.gameStates.length === 0) return;
     
     const currentState = state.gameStates[state.gameStates.length - 1];
-    const isHuman = currentState.current_player === state.humanPlayerPosition;
+    const isHuman = state.currentPlayerId === state.humanPlayerPosition;
     
     if (!isHuman && !currentState.game_ended) {
-      const aiPlayer = new AIPlayer(currentState.current_player);
+      const aiPlayer = new AIPlayer(get().currentPlayerId, get().amount,get().setAmount);
       const action = aiPlayer.makeDecision(currentState);
-      await state.logAIAction(action);
+      await state.logAction(action);
     }
   },
   fetchHandHistory: async () => {

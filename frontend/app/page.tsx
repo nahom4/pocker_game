@@ -1,11 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-// import ActionControls from "./components/ActionControls";
-// import HandLog from "./components/HandLog";
-// import HandHistory from "./components/HandHistory";
-// import { Button } from "@/components/ui/button";
 import { usePokerStore } from "@/app/store/pockerStore";
-// import { HandDescription } from "@/app/components/HandDescription";
 import { StartHandRequest } from "./types/pockerTypes";
 import HandHistoryPanel from "./components/HandHistoryPanel";
 import PokerTable from "./components/PokerTable";
@@ -27,7 +22,9 @@ const PokerGame = () => {
     setGameEnded,
     winner,
     humanPlayerPosition,
-    currentPlayerId
+    currentPlayerId,
+    pot,
+    communityCard
     
   } = usePokerStore();
 
@@ -97,6 +94,8 @@ const PokerGame = () => {
         setGameEnded={setGameEnded}
         humanPlayerPosition= {humanPlayerPosition}
         currentPlayerId = {currentPlayerId}
+        pot={pot}
+        communityCard={communityCard}
       />
       
       <HandHistoryPanel

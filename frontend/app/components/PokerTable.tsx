@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Card, CardContent } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { History } from "lucide-react";
-import PlayingCard from "./PlayingCard";
 import PlayerSeat from "./PlayerSeat";
 import ActionControls from "./ActionControls";
 import GameEndModal from "./GameEndModal";
 import { ImageWithFallback } from "./ImageWithFallback";
-
+import {Card} from  "@/app/store/pockerStore"
+import PlayingCard from "./PlayingCard";
 interface PokerTableProps {
   hand: any;
   gameStates: any[];
@@ -24,6 +23,8 @@ interface PokerTableProps {
   setGameEnded: (ended: boolean) => void;
   humanPlayerPosition: number;
   currentPlayerId: number
+  pot: number;
+  communityCard : Card[]
 }
 
 const PokerTable: React.FC<PokerTableProps> = ({
@@ -39,14 +40,14 @@ const PokerTable: React.FC<PokerTableProps> = ({
   gameEnded,
   winner,
   setGameEnded,
-  humanPlayerPosition,
-  currentPlayerId
+  currentPlayerId,
+  pot,
+  communityCard
 }) => {
   const [inputValue, setInputValue] = useState(stack.toString());
 
   const players = hand?.players || [];
   const humanPlayer = players.find((p) => p.isHuman);
-  const communityCards = hand?.community_cards || [];
   const dealerPosition = hand?.dealer_position;
 
   const handleApplyStack = () => {
@@ -103,12 +104,12 @@ const PokerTable: React.FC<PokerTableProps> = ({
             </Button>
           </div>
 
-          <Button onClick={onShowHistory} variant="outline" size="sm">
+          <Button className="bg-white" onClick={onShowHistory} variant="outline" size="sm">
             <History className="w-4 h-4 mr-1" />
             History
           </Button>
 
-          <Button onClick={onStartNewHand} variant="outline" size="sm">
+          <Button className="bg-white" onClick={onStartNewHand} variant="outline" size="sm">
             {newGameStarted ? "Restart" : "Start"}
           </Button>
         </div>
@@ -123,9 +124,10 @@ const PokerTable: React.FC<PokerTableProps> = ({
             {players[3] && (
               <PlayerSeat
                 player={players[3]}
-                currentPlayerId={currentPlayerId === 3}
+                isCurrentPlayer={currentPlayerId === 3}
                 isDealer={dealerPosition === players[3].id}
                 className="row-start-1 col-start-1"
+                gameStates = {gameStates}
               />
             )}
             {players[4] && (
@@ -134,6 +136,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isCurrentPlayer={currentPlayerId === 4}
                 isDealer={dealerPosition === players[4].id}
                 className="row-start-1 col-start-2"
+                gameStates={gameStates}
               />
             )}
             {players[5] && (
@@ -142,6 +145,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isCurrentPlayer={currentPlayerId === 5}
                 isDealer={dealerPosition === players[5].id}
                 className="row-start-1 col-start-3"
+                gameStates={gameStates}
               />
             )}
 
@@ -152,6 +156,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isCurrentPlayer={currentPlayerId === 2}
                 isDealer={dealerPosition === players[2].id}
                 className="row-start-2 col-start-1"
+                gameStates = {gameStates}
               />
             )}
             {players[0] && (
@@ -160,6 +165,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isCurrentPlayer={currentPlayerId === 0}
                 isDealer={dealerPosition === players[0].id}
                 className="row-start-2 col-start-3"
+                gameStates={gameStates}
               />
             )}
 
@@ -167,9 +173,10 @@ const PokerTable: React.FC<PokerTableProps> = ({
             {players[1] && (
               <PlayerSeat
                 player={players[1]}
-                isCurrentPlayer={currentPlayerId === 3}
+                isCurrentPlayer={currentPlayerId === 1}
                 isDealer={dealerPosition === players[1].id}
                 className="row-start-3 col-start-1"
+                gameStates={gameStates}
               />
             )}
 
@@ -185,11 +192,11 @@ const PokerTable: React.FC<PokerTableProps> = ({
                   </Badge>
                 </div>
                 <div className="flex justify-center gap-2 mb-4">
-                  {Array.from({ length: 5 }).map((_, index) => (
+                  {communityCard.map((card, index) => (
                     <PlayingCard
                       key={index}
-                      suit={communityCards[index]?.suit}
-                      rank={communityCards[index]?.rank}
+                      suit={card?.suit}
+                      rank={card?.rank}
                       className="scale-110"
                     />
                   ))}
@@ -199,7 +206,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                     variant="secondary"
                     className="bg-green-700 text-white"
                   >
-                    Pot: ${(hand?.pot || 0).toLocaleString()}
+                    Pot: ${(pot || 0).toLocaleString()}
                   </Badge>
                 </div>
                 {hand?.round && (

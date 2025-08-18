@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import {useRef} from "react";
 import { Action, GameState, Hand } from "../types/pockerTypes";
 import { Button } from "@/components/ui/button";
+import { usePokerStore } from "../store/pockerStore";
 
 interface ActionControlsProps {
   onAction: (action: Action) => void;
@@ -17,17 +18,17 @@ const ActionControls: React.FC<ActionControlsProps> = ({
   newGameStarted,
   isHumanTurn,
 }) => {
-  const [amount, setAmount] = useState(40);
+  // const [amount, setAmount] = useState(40);
+  const {amount, setAmount} = usePokerStore()
   const maxBetOrRaiseAmountRef = useRef(hand.stack);
   maxBetOrRaiseAmountRef.current = hand.stack - hand.big_blind_amount;
 
   const handleDecreaseBet = () => {
-    setAmount((prevAmount) => Math.max(prevAmount - 40, 40));
+    setAmount(Math.max(amount - 40, 40));
   };
 
   const handleIncreaseBet = () => {
-    setAmount((prevAmount) =>
-      Math.min(prevAmount + 40, maxBetOrRaiseAmountRef.current)
+    setAmount( Math.min(amount + 40, maxBetOrRaiseAmountRef.current)
     );
   };
 
@@ -39,15 +40,6 @@ const ActionControls: React.FC<ActionControlsProps> = ({
     maxBetOrRaiseAmountRef.current = gameState.max_bet_or_raise_amount;
   }
 
-  useEffect(() => {
-    if (gameStates.length > 0) {
-      const gameState = gameStates[gameStates.length - 1];
-      if (gameState.round_changed) {
-        setAmount(40);
-      }
-    }
-    setAmount(40);
-  }, [gameStates]);
 
   const handleActionClick = (action_type: string) => {
     const hand_uuid = hand.hand_uuid;

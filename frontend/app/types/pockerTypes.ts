@@ -10,7 +10,7 @@ export interface Action {
     action : Action,
     round: string;
     round_changed: boolean;
-    round_dealing: [string, number][];
+    round_dealing: [string, string][];
     winnings : Array<number>;
     game_ended : boolean;
     current_player : number;
