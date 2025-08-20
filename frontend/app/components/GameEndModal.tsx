@@ -2,17 +2,15 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Trophy, DollarSign, Users } from 'lucide-react';
-
+import {WinnerInfo} from  "@/app/store/pockerStore"
+import PlayingCard from './PlayingCard';
 interface GameEndModalProps {
   isOpen: boolean;
   onClose: () => void;
   isWinner: boolean;
   potAmount: number;
   amountWon?: number;
-  winnerInfo?: {
-    name: string;
-    hand: string;
-  };
+  winnerInfo?:WinnerInfo;
   onNewGame: () => void;
 }
 
@@ -27,7 +25,7 @@ const GameEndModal: React.FC<GameEndModalProps> = ({
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md mx-auto">
+      <DialogContent className="max-w-md mx-auto bg-slate-50">
         <DialogHeader className="text-center">
           <div className="flex justify-center mb-4">
             {isWinner ? (
@@ -70,7 +68,23 @@ const GameEndModal: React.FC<GameEndModalProps> = ({
                       <strong>Winner:</strong> {winnerInfo.name}
                     </div>
                     <div className="text-sm">
-                      <strong>Winning Hand:</strong> {winnerInfo.hand}
+                      <strong>Winner:</strong> {winnerInfo.amount}
+                    </div>
+                    <div className="text-sm">
+                    <strong>Winning Hand</strong> 
+                    <div className='flex'>
+                      {
+                      // Show actual cards for human player
+                      winnerInfo.hand.map((card, index) => (
+                        <PlayingCard
+                          key={index}
+                          suit={card.suit}
+                          rank={card.rank}
+                          className="scale-75"
+                        />
+                      ))
+                    }
+                    </div>
                     </div>
                   </div>
                 )}

@@ -1,7 +1,7 @@
 // store/pokerStore.ts
 'use client'
 import create from 'zustand';
-import {Hand,Action, GameState, StartHandRequest} from '@/app/types/pockerTypes'
+import {Hand,Action, GameState, StartHandRequest, Player} from '@/app/types/pockerTypes'
 import { pokerAPI } from '../services/pockerApI';
 import { AIPlayer } from '../services/aiPlayer';
 
@@ -20,6 +20,8 @@ interface PokerState {
   pot: number;
   amount: number;
   communityCard : Card[];
+  amountWon : number;
+  winnerInfo : WinnerInfo;
   applyStack : (stack : number) => void;
   setHand : (hand : Hand) => void;
   setGameState : (gameState : GameState) => void;
@@ -40,7 +42,7 @@ interface PokerState {
 
 const sampleHand =  {
   hand_uuid : '',
-  stack : 0,
+  stack : 1000,
   dealer : 0,
   small_blind : 0,
   big_blind : 0,
@@ -50,12 +52,12 @@ const sampleHand =  {
   actions : [],
   winnings : [],
   players: [
-    { id: 0, name: 'Player 1', stack: 1200, position: 'Dealer', isHuman: false, cards: []  },
-    { id: 1, name: 'Player 2', stack: 850, position: 'Small Blind', isHuman: false, cards: [] },
-    { id: 2, name: 'Player 3', stack: 950, position: 'Big Blind', isHuman: false, cards: [] },
-    { id: 3, name: 'You', stack: 1000, position: 'Button', isHuman: true, cards: [] },
-    { id: 4, name: 'Player 5', stack: 1100, position: 'MP', isHuman: false, cards: [] },
-    { id: 5, name: 'Player 6', stack: 750, position: 'CO', isHuman: false, cards: [] }
+    { id: 0, name: 'Player 1', stack: 1200, position: 'Dealer', isHuman: false, cards: [], isActive:true  },
+    { id: 1, name: 'Player 2', stack: 850, position: 'Small Blind', isHuman: false, cards: [], isActive:true},
+    { id: 2, name: 'Player 3', stack: 950, position: 'Big Blind', isHuman: false, cards: [], isActive:true },
+    { id: 3, name: 'You', stack: 1000, position: 'Button', isHuman: true, cards: [], isActive:true },
+    { id: 4, name: 'Player 5', stack: 1100, position: 'MP', isHuman: false, cards: [], isActive:true },
+    { id: 5, name: 'Player 6', stack: 750, position: 'CO', isHuman: false, cards: [], isActive:true }
   ],
 }
 
@@ -67,6 +69,11 @@ type Card = {
   rank: string;
 };
 
+export type WinnerInfo = {
+  name: string;
+  hand: Card[];
+  amount: number
+}
 function formatHand(hand: string): Card[] {
   const cards: Card[] = [];
   for (let i = 0; i < hand.length; i += 2) {
@@ -77,10 +84,18 @@ function formatHand(hand: string): Card[] {
   return cards;
 }
 
+function updateStack(hand : Hand, players_stack : number[]){
+
+  players_stack.forEach((stack, index) => {
+    hand.players[index].stack = stack
+  })
+
+}
+
 function switchTurn(set,get,gameState){
   if (!gameState.game_ended) {
     setTimeout(() => {
-      set({currentPlayerId : (gameState.current_player + 1) % 6})
+      set({currentPlayerId : (gameState.next_player)})
       const isHuman = get().currentPlayerId === get().humanPlayerPosition;
       set({ isHumanTurn: isHuman });
 
@@ -93,9 +108,20 @@ function switchTurn(set,get,gameState){
   }
 }
 
+function assignCardsToPlayers(players: Player[], hand: Hand) {
+  players.forEach((player, index) => {
+    const currentPlayerHand = hand.players_hand[index];
+    const formattedHand = formatHand(currentPlayerHand);
+    player.cards = formattedHand;
+  });
+
+  return players;
+}
+
+
 export const usePokerStore = create<PokerState>((set, get) => ({
   stack : 1000,
-  hand : sampleHand,
+  hand : structuredClone(sampleHand),
   gameStates : [],
   handHistory: [],
   newGameStarted: false,
@@ -108,7 +134,11 @@ export const usePokerStore = create<PokerState>((set, get) => ({
   pot: 60,
   amount: 40,
   communityCard : [],
-  applyStack : (stack: number) => set({stack}),
+  amountWon : 0,
+  winnerInfo : {name : '',hand : [{suit : '',rank : ''}] , amount: 0},
+  applyStack : (stack: number) => {
+    debugger
+    set({stack})},
   setHand : (hand: Hand) => set({ hand }),
   setGameState: (gameState: GameState) => set((state) => ({ gameStates: state.gameStates.concat(gameState) })),
   setHandHistory : (history: Hand[]) => set({ handHistory: history }),
@@ -127,14 +157,12 @@ export const usePokerStore = create<PokerState>((set, get) => ({
       })
 
       const hand = await pokerAPI.startHand(startHandRequest);
-      const currentPlayerHand = hand.players_hand[3]
-      const formattedHand = formatHand(currentPlayerHand)
-      players[3].cards.push(...formattedHand)
+      assignCardsToPlayers(players,hand)
       hand.players = players
 
       set({ hand });
        set({ isHumanTurn: true });
-      debugger
+   
     }
     catch(e){
       console.log(e)
@@ -150,15 +178,41 @@ export const usePokerStore = create<PokerState>((set, get) => ({
       else{
         set({action: action.action_type })
       }
-      set({pot : get().pot + (action.amount || 0) }) 
+
+      if(gameState.total_pot_amount){
+
+        set({pot : gameState.total_pot_amount }) 
+      }
       set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
         
       switchTurn(set,get,gameState)
+      updateStack(get().hand, gameState.players_stacks)
     
       if (gameState.round_changed) {
           set({amount :  40})
+          
           const roundDealings = formatHand(gameState.round_dealing[0][1])
           set({communityCard : [...get().communityCard, ...roundDealings]})
+      }
+
+      if (gameState.game_ended){
+        set({gameEnded : true})
+        if ( gameState.winnings[get().humanPlayerPosition] > 0){
+          get().setWinner(true)
+          set({amountWon : gameState.winnings[get().humanPlayerPosition]})
+        }
+
+        const winningIndex = gameState.winnings.findIndex(winning => winning > 0)
+        
+        set({
+          winnerInfo : {name : get().hand.players[winningIndex].name, 
+          hand : get().hand.players[winningIndex].cards,
+          amount : gameState.winnings[winningIndex]}
+          })
+      }
+
+      if (action.action_type == 'fold'){
+        get().hand.players[get().currentPlayerId].isActive = false
       }
           
     }
@@ -166,22 +220,9 @@ export const usePokerStore = create<PokerState>((set, get) => ({
       console.error(e)  
     }
   },
-  // logAIAction: async (action: Action) => {
-  //   debugger
-  //   try{
-  //     const gameState = await pokerAPI.logAction(action);
-  //     set({action : action.action_type})
-  //     set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
-      
-  //     switchTurn(set,get,gameState)
-    
-  //   }
-  //   catch(e){
-  //     console.error(e)  
-  //   }
-  // },
+
   processAITurn: async () => {
-    debugger
+  
     const state = get();
     if (state.gameStates.length === 0) return;
     
@@ -206,8 +247,21 @@ export const usePokerStore = create<PokerState>((set, get) => ({
     }
   },
 
-  resetStore: () => set({
+  resetStore: () => {
+    set({
+    stack: 1000,
     hand: sampleHand,
     gameStates: [],
-  }),
+    handHistory: [],
+    newGameStarted: false,
+    gameEnded: false,
+    winner: false,
+    humanPlayerPosition: 3,
+    isHumanTurn: false,
+    currentPlayerId: 3,
+    action: '',
+    pot: 60,
+    amount: 40,
+    communityCard: [],
+  })},
 }));

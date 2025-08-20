@@ -14,9 +14,12 @@ export interface Action {
     winnings : Array<number>;
     game_ended : boolean;
     current_player : number;
+    next_player : number;
     valid_actions: Array<boolean>;
     final_pot : number;
     max_bet_or_raise_amount : number;
+    total_pot_amount : number;
+    players_stacks : number[]
   }
  
  
@@ -44,6 +47,7 @@ export interface Player {
   position: string;
   isHuman: boolean;
   cards: Array<{ suit: string; rank: string }>;
+  isActive: boolean
 };
 
 

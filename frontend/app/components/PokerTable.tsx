@@ -6,8 +6,9 @@ import PlayerSeat from "./PlayerSeat";
 import ActionControls from "./ActionControls";
 import GameEndModal from "./GameEndModal";
 import { ImageWithFallback } from "./ImageWithFallback";
-import {Card} from  "@/app/store/pockerStore"
+import {WinnerInfo} from  "@/app/store/pockerStore"
 import PlayingCard from "./PlayingCard";
+import { motion, AnimatePresence } from "framer-motion";
 interface PokerTableProps {
   hand: any;
   gameStates: any[];
@@ -25,6 +26,8 @@ interface PokerTableProps {
   currentPlayerId: number
   pot: number;
   communityCard : Card[]
+  amountWon: number
+  winnerInfo : WinnerInfo
 }
 
 const PokerTable: React.FC<PokerTableProps> = ({
@@ -42,7 +45,9 @@ const PokerTable: React.FC<PokerTableProps> = ({
   setGameEnded,
   currentPlayerId,
   pot,
-  communityCard
+  communityCard,
+  amountWon,
+  winnerInfo
 }) => {
   const [inputValue, setInputValue] = useState(stack.toString());
 
@@ -110,7 +115,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
           </Button>
 
           <Button className="bg-white" onClick={onStartNewHand} variant="outline" size="sm">
-            {newGameStarted ? "Restart" : "Start"}
+            {newGameStarted ? "Reset" : "Start"}
           </Button>
         </div>
       </div>
@@ -128,6 +133,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isDealer={dealerPosition === players[3].id}
                 className="row-start-1 col-start-1"
                 gameStates = {gameStates}
+                gameEnded = {gameEnded}
               />
             )}
             {players[4] && (
@@ -137,6 +143,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isDealer={dealerPosition === players[4].id}
                 className="row-start-1 col-start-2"
                 gameStates={gameStates}
+                gameEnded = {gameEnded}
               />
             )}
             {players[5] && (
@@ -146,6 +153,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isDealer={dealerPosition === players[5].id}
                 className="row-start-1 col-start-3"
                 gameStates={gameStates}
+                gameEnded = {gameEnded}
               />
             )}
 
@@ -157,6 +165,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isDealer={dealerPosition === players[2].id}
                 className="row-start-2 col-start-1"
                 gameStates = {gameStates}
+                gameEnded = {gameEnded}
               />
             )}
             {players[0] && (
@@ -166,6 +175,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isDealer={dealerPosition === players[0].id}
                 className="row-start-2 col-start-3"
                 gameStates={gameStates}
+                gameEnded = {gameEnded}
               />
             )}
 
@@ -177,51 +187,60 @@ const PokerTable: React.FC<PokerTableProps> = ({
                 isDealer={dealerPosition === players[1].id}
                 className="row-start-3 col-start-1"
                 gameStates={gameStates}
+                gameEnded = {gameEnded}
               />
             )}
 
             {/* Community Cards Center */}
             <div className="row-start-2 col-start-2 flex flex-col items-center">
-              <div className="bg-black/30 rounded-2xl p-6 border-2 border-yellow-600/30 min-w-80">
-                <div className="text-center mb-4">
-                  <Badge
-                    variant="outline"
-                    className="bg-yellow-600 text-white border-yellow-500"
-                  >
-                    Community Cards
-                  </Badge>
-                </div>
-                <div className="flex justify-center gap-2 mb-4">
-                  {communityCard.map((card, index) => (
-                    <PlayingCard
-                      key={index}
-                      suit={card?.suit}
-                      rank={card?.rank}
-                      className="scale-110"
-                    />
-                  ))}
-                </div>
-                <div className="text-center">
-                  <Badge
-                    variant="secondary"
-                    className="bg-green-700 text-white"
-                  >
-                    Pot: ${(pot || 0).toLocaleString()}
-                  </Badge>
-                </div>
-                {hand?.round && (
-                  <div className="text-center mt-2">
-                    <Badge
-                      variant="outline"
-                      className="bg-blue-600 text-white border-blue-500 text-sm"
-                    >
-                      {hand.round.charAt(0).toUpperCase() +
-                        hand.round.slice(1)}
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            </div>
+  <div className="bg-black/30 rounded-2xl p-6 border-2 border-yellow-600/30 min-w-80">
+    <div className="text-center mb-4">
+      <Badge
+        variant="outline"
+        className="bg-yellow-600 text-white border-yellow-500"
+      >
+        Community Cards
+      </Badge>
+    </div>
+    <div className="flex justify-center gap-2 mb-4">
+      <AnimatePresence>
+        {communityCard.map((card, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -30, scale: 0.8 }}
+            transition={{ duration: 0.4, delay: index * 0.15 }}
+          >
+            <PlayingCard
+              suit={card?.suit}
+              rank={card?.rank}
+              className="scale-110"
+            />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+    <div className="text-center">
+      <Badge
+        variant="secondary"
+        className="bg-green-700 text-white"
+      >
+        Pot: ${(pot || 0).toLocaleString()}
+      </Badge>
+    </div>
+    {hand?.round && (
+      <div className="text-center mt-2">
+        <Badge
+          variant="outline"
+          className="bg-blue-600 text-white border-blue-500 text-sm"
+        >
+          {hand.round.charAt(0).toUpperCase() + hand.round.slice(1)}
+        </Badge>
+      </div>
+    )}
+  </div>
+</div>
             {/* Bottom Action Area */}
             {newGameStarted &&
               humanPlayer &&
@@ -248,11 +267,9 @@ const PokerTable: React.FC<PokerTableProps> = ({
         isOpen={gameEnded}
         onClose={handleGameEndClose}
         isWinner={winner}
-        potAmount={hand?.pot || 0}
-        amountWon={winner ? (hand?.pot || 0) / 2 : 0}
-        winnerInfo={
-          !winner ? { name: "Opponent", hand: "Pair of Aces" } : undefined
-        }
+        potAmount={pot || 0}
+        amountWon={amountWon }
+        winnerInfo={winnerInfo}
         onNewGame={handleNewGameFromModal}
       />
     </div>
