@@ -89,36 +89,49 @@ const PokerTable: React.FC<PokerTableProps> = ({
       {/* Top Controls */}
       <div className="relative z-10 p-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="text-white">6-Max Texas Holdem</h1>
+          <h1 className="text-white text-lg font-semibold">6-Max Texas Holdem</h1>
           <Badge variant="secondary" className="bg-black/50 text-white">
             Stack: ${stack.toLocaleString()}
           </Badge>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
+        <div className="flex justify-end">
+          <div className="flex items-center gap-3 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-white/20">
             <input
               type="number"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-24 px-2 py-1 rounded border bg-white/90"
+              className="w-20 h-9 text-center border border-gray-200 rounded focus:border-primary focus:ring-0"
               placeholder="Stack"
             />
-            <Button onClick={handleApplyStack} size="sm" variant="secondary">
+            <Button
+              onClick={handleApplyStack}
+              variant="outline"
+              size="sm"
+              className="h-9 px-4 bg-white hover:bg-gray-50 border-gray-200"
+            >
               Set
             </Button>
+            <Button
+              onClick={onShowHistory}
+              variant="outline"
+              size="sm"
+              className="h-9 px-3 bg-white hover:bg-gray-50 border-gray-200 flex items-center gap-2"
+            >
+              <History className="h-4 w-4" />
+              History
+            </Button>
+            <Button
+              onClick={onStartNewHand}
+              size="sm"
+              className="h-9 px-6 bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              {newGameStarted ? "Reset" : "Start"}
+            </Button>
           </div>
-
-          <Button className="bg-white" onClick={onShowHistory} variant="outline" size="sm">
-            <History className="w-4 h-4 mr-1" />
-            History
-          </Button>
-
-          <Button className="bg-white" onClick={onStartNewHand} variant="outline" size="sm">
-            {newGameStarted ? "Reset" : "Start"}
-          </Button>
         </div>
       </div>
+
 
       {/* Main Table Area */}
       <div className="relative z-10 flex-1 flex items-center justify-center p-4">

@@ -4,7 +4,12 @@ import { usePokerStore } from "@/app/store/pockerStore";
 import { StartHandRequest } from "./types/pockerTypes";
 import HandHistoryPanel from "./components/HandHistoryPanel";
 import PokerTable from "./components/PokerTable";
-
+import { ImageWithFallback } from "./components/ImageWithFallback";
+import { motion } from "framer-motion";
+import { Badge } from "./components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Play, Users, Trophy, Zap, Shield, Star } from "lucide-react";
+import { PokerLandingPage } from "./components/LandingPage";
 const PokerGame = () => {
   const {
     hand,
@@ -71,25 +76,11 @@ const PokerGame = () => {
     setShowTable(true);
   };
 
-  // Landing Page JSX
+
   if (!showTable) {
-    return (
-      <div
-        className="h-screen w-full flex flex-col justify-center items-center bg-cover bg-center"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1567136445648-01b1b12734ca?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080')" }} // replace with your background
-      >
-        <h1 className="text-6xl md:text-8xl font-bold text-yellow-400 drop-shadow-lg mb-10 text-center">
-        Poker
-        </h1>
-        <button
-          onClick={handlePlayClick}
-          className="px-12 py-2 text-2xl md:text-3xl font-semibold bg-green-900 hover:bg-green-950 text-white rounded-lg shadow-lg transition-transform transform hover:scale-105"
-        >
-          Play
-        </button>
-      </div>
-    );
+    return <PokerLandingPage handlePlayClick = {handlePlayClick}/>
   }
+
 
   // Poker Table JSX
   return (

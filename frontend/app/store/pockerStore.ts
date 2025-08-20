@@ -52,13 +52,14 @@ const sampleHand =  {
   actions : [],
   winnings : [],
   players: [
-    { id: 0, name: 'Player 1', stack: 1200, position: 'Dealer', isHuman: false, cards: [], isActive:true  },
-    { id: 1, name: 'Player 2', stack: 850, position: 'Small Blind', isHuman: false, cards: [], isActive:true},
-    { id: 2, name: 'Player 3', stack: 950, position: 'Big Blind', isHuman: false, cards: [], isActive:true },
-    { id: 3, name: 'You', stack: 1000, position: 'Button', isHuman: true, cards: [], isActive:true },
-    { id: 4, name: 'Player 5', stack: 1100, position: 'MP', isHuman: false, cards: [], isActive:true },
-    { id: 5, name: 'Player 6', stack: 750, position: 'CO', isHuman: false, cards: [], isActive:true }
+    { id: 0, name: 'Alice', stack: 1200, position: 'Dealer', isHuman: false, cards: [], isActive: true },
+    { id: 1, name: 'Bob', stack: 850, position: 'Small Blind', isHuman: false, cards: [], isActive: true },
+    { id: 2, name: 'Charlie', stack: 950, position: 'Big Blind', isHuman: false, cards: [], isActive: true },
+    { id: 3, name: 'You', stack: 1000, position: 'Button', isHuman: true, cards: [], isActive: true },
+    { id: 4, name: 'Diana', stack: 1100, position: 'MP', isHuman: false, cards: [], isActive: true },
+    { id: 5, name: 'Ethan', stack: 750, position: 'CO', isHuman: false, cards: [], isActive: true }
   ],
+  
 }
 
 // Initial game state
