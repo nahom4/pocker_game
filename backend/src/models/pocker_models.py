@@ -58,8 +58,11 @@ class GameState:
     round_changed: bool = False
     round_dealing: List[List] = field(default_factory=list)
     winnings: List[int] = field(default_factory=list)
+    players_stacks: List[int] = field(default_factory=list)
     game_ended: bool = False
     current_player: int = 0
+    next_player: int = 0
+    total_pot_amount: int = 0
     valid_actions: List[bool] = field(default_factory=list)
     final_pot : int = 0
     max_bet_or_raise_amount : int = 0

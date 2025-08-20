@@ -116,13 +116,16 @@ class PokerService:
 
         game_state.action = action
         game_state.current_player = current_player
+
+        game_state.next_player = self.current_hand.actor_index
         game_state.valid_actions = self.get_valid_actions()
         game_state.max_bet_or_raise_amount = self.max_bet_or_raise_amount()
+        game_state.total_pot_amount = self.current_hand.total_pot_amount
+        game_state.players_stacks = self.current_hand.stacks
         serialized_hand = self.get_serialized_hand()
         encoded_action = self.encode_action(action)
         self.repo.save_round_action(action.hand_uuid, encoded_action + cards_dealt)
         self.repo.save_serialized_hand(action.hand_uuid, serialized_hand)
-        print(self.current_hand.max_completion_betting_or_raising_to_amount)
         return game_state
 
 
