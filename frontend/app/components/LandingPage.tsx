@@ -35,7 +35,7 @@ export function PokerLandingPage({
               </h1>
               
               <p className="text-xl text-gray-200 mb-8 leading-relaxed">
-                Experience the thrill of Texas Hold'em in our exclusive 6-player tournaments. 
+                Experience the thrill of Texas Holdem in our exclusive 6-player tournaments. 
                 Test your skills, bluff your way to victory, and become a poker legend.
               </p>
               

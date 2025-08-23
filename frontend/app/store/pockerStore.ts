@@ -1,7 +1,7 @@
 // store/pokerStore.ts
 'use client'
 import create from 'zustand';
-import {Hand,Action, GameState, StartHandRequest, Player} from '@/app/types/pockerTypes'
+import {Hand,Action, GameState, StartHandRequest, Player, Card, WinnerInfo} from '@/app/types/pockerTypes'
 import { pokerAPI } from '../services/pockerApI';
 import { AIPlayer } from '../services/aiPlayer';
 
@@ -38,6 +38,7 @@ interface PokerState {
   fetchHandHistory: () => Promise<void>;
   resetStore: () => void;
   processAITurn: () => Promise<void>;
+  switchTurn: (gameState : GameState) => void;
 }
 
 const sampleHand =  {
@@ -65,16 +66,7 @@ const sampleHand =  {
 // Initial game state
 // Game play -> Player action round is over and game is over
 
-type Card = {
-  suit: string;
-  rank: string;
-};
 
-export type WinnerInfo = {
-  name: string;
-  hand: Card[];
-  amount: number
-}
 function formatHand(hand: string): Card[] {
   const cards: Card[] = [];
   for (let i = 0; i < hand.length; i += 2) {
@@ -91,22 +83,6 @@ function updateStack(hand : Hand, players_stack : number[]){
     hand.players[index].stack = stack
   })
 
-}
-
-function switchTurn(set,get,gameState){
-  if (!gameState.game_ended) {
-    setTimeout(() => {
-      set({currentPlayerId : (gameState.next_player)})
-      const isHuman = get().currentPlayerId === get().humanPlayerPosition;
-      set({ isHumanTurn: isHuman });
-
-      if (!isHuman){
-        get().processAITurn()
-      }
-      set({action : ''})
-
-    }, 1000);
-  }
 }
 
 function assignCardsToPlayers(players: Player[], hand: Hand) {
@@ -186,7 +162,7 @@ export const usePokerStore = create<PokerState>((set, get) => ({
       }
       set((state) => ({ gameStates: state.gameStates.concat(gameState) }));
         
-      switchTurn(set,get,gameState)
+      get().switchTurn(gameState)
       updateStack(get().hand, gameState.players_stacks)
     
       if (gameState.round_changed) {
@@ -219,6 +195,22 @@ export const usePokerStore = create<PokerState>((set, get) => ({
     }
     catch(e){
       console.error(e)  
+    }
+  },
+  switchTurn(gameState){
+
+    if (!gameState.game_ended) {
+      setTimeout(() => {
+        set({currentPlayerId : (gameState.next_player)})
+        const isHuman = get().currentPlayerId === get().humanPlayerPosition;
+        set({ isHumanTurn: isHuman });
+  
+        if (!isHuman){
+          get().processAITurn()
+        }
+        set({action : ''})
+  
+      }, 1000);
     }
   },
 

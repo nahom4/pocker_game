@@ -2,8 +2,8 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Button } from './ui/button';
 import { Trophy, DollarSign, Users } from 'lucide-react';
-import {WinnerInfo} from  "@/app/store/pockerStore"
 import PlayingCard from './PlayingCard';
+import { WinnerInfo } from '../types/pockerTypes';
 interface GameEndModalProps {
   isOpen: boolean;
   onClose: () => void;

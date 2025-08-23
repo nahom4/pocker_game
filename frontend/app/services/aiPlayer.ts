@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // AI decision making for poker players
 import { Action, GameState } from "../types/pockerTypes";
 

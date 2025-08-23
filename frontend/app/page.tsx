@@ -4,11 +4,6 @@ import { usePokerStore } from "@/app/store/pockerStore";
 import { StartHandRequest } from "./types/pockerTypes";
 import HandHistoryPanel from "./components/HandHistoryPanel";
 import PokerTable from "./components/PokerTable";
-import { ImageWithFallback } from "./components/ImageWithFallback";
-import { motion } from "framer-motion";
-import { Badge } from "./components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Play, Users, Trophy, Zap, Shield, Star } from "lucide-react";
 import { PokerLandingPage } from "./components/LandingPage";
 const PokerGame = () => {
   const {
@@ -108,7 +103,6 @@ const PokerGame = () => {
 
       <HandHistoryPanel
         history={handHistory}
-        gameStates={gameStates}
         fetchHandHistory={fetchHandHistory}
         isOpen={showHistory}
         onClose={() => setShowHistory(false)}

@@ -54,3 +54,14 @@ export interface Player {
 export interface StartHandRequest{
   stack : number;
 }
+
+export type Card = {
+  suit: string;
+  rank: string;
+};
+
+export type WinnerInfo = {
+  name: string;
+  hand: Card[];
+  amount: number
+}

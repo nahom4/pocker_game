@@ -4,9 +4,10 @@ import { ScrollArea } from './ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { History } from 'lucide-react';
 import { Button } from './ui/button';
+import { Hand } from '../types/pockerTypes';
 
 interface HandHistoryPanelProps {
-  history: any[];
+  history: Hand[];
   fetchHandHistory: () => void;
   isOpen: boolean;
   onClose: () => void;
@@ -16,7 +17,7 @@ const HandHistoryPanel: React.FC<HandHistoryPanelProps> = ({
   history,
   fetchHandHistory,
   isOpen,
-  onClose
+  onClose,
 }) => {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
