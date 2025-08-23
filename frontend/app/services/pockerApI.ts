@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Action, Hand, GameState, StartHandRequest } from "../types/pockerTypes";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/v1` || 'http://localhost:8000/api/v1';
 
 export const pokerAPI = {
   startHand: async (startHandRequest : StartHandRequest): Promise<Hand> => {
