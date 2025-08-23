@@ -28,6 +28,7 @@ interface PokerTableProps {
   communityCard: Card[];
   amountWon: number;
   winnerInfo: WinnerInfo;
+  toggleShowTable: (value: boolean) => void;
 }
 
 const PokerTable: React.FC<PokerTableProps> = ({
@@ -48,6 +49,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
   communityCard,
   amountWon,
   winnerInfo,
+  toggleShowTable
 }) => {
   const [inputValue, setInputValue] = useState(stack.toString());
 
@@ -89,7 +91,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
       {/* Top Controls */}
       <div className="relative z-10 p-4 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h1 className="text-white text-lg font-semibold">
+          <h1 onClick={() => toggleShowTable(false)} className="text-white text-lg font-semibold cursor-pointer ">
             6-Max Texas Holdem
           </h1>
           <Badge variant="secondary" className="bg-black/50 text-white">
