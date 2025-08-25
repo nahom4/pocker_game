@@ -100,19 +100,19 @@ const PokerTable: React.FC<PokerTableProps> = ({
         </div>
 
         <div className="flex justify-end">
-          <div className="flex items-center gap-3 bg-white/95 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-white/20">
+          <div className="flex items-center gap-3  backdrop-blur-sm rounded-lg p-3 shadow-lg border border-white/20">
             <input
               type="number"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-20 h-9 text-center border border-gray-200 rounded focus:border-primary focus:ring-0"
+              className="w-20 h-9 !bg-transparent text-center border border-gray-200 rounded focus:border-primary focus:ring-0"
               placeholder="Stack"
             />
             <Button
               onClick={handleApplyStack}
               variant="outline"
               size="sm"
-              className="h-9 px-4 bg-white hover:bg-gray-50 border-gray-200"
+              className="h-9 px-4  hover:bg-gray-50 border-gray-200"
             >
               Set
             </Button>
@@ -120,7 +120,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
               onClick={onShowHistory}
               variant="outline"
               size="sm"
-              className="h-9 px-3 bg-white hover:bg-gray-50 border-gray-200 flex items-center gap-2"
+              className="h-9 px-3 hover:bg-gray-50 border-gray-200 flex items-center gap-2"
             >
               <History className="h-4 w-4" />
               History
