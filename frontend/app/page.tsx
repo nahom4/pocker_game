@@ -88,7 +88,7 @@ const PokerGame = () => {
         toggleShowTable = {toggleShowTable}
         gameStates={gameStates}
         onAction={logAction}
-        isHumanTurn93={isHumanTurn}
+        isHumanTurn={isHumanTurn}
         newGameStarted={newGameStarted}
         onShowHistory={() => setShowHistory(true)}
         stack={stack}
