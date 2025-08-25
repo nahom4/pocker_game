@@ -71,6 +71,9 @@ const PokerGame = () => {
     setShowTable(true);
   };
 
+  function toggleShowTable(value : boolean){
+    setShowTable(value)
+  }
 
   if (!showTable) {
     return <PokerLandingPage handlePlayClick = {handlePlayClick}/>
@@ -82,9 +85,10 @@ const PokerGame = () => {
     <div className="h-screen overflow-hidden" data-testid="poker.game-container">
       <PokerTable
         hand={hand}
+        toggleShowTable = {toggleShowTable}
         gameStates={gameStates}
         onAction={logAction}
-        isHumanTurn={isHumanTurn}
+        isHumanTurn93={isHumanTurn}
         newGameStarted={newGameStarted}
         onShowHistory={() => setShowHistory(true)}
         stack={stack}
