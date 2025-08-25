@@ -140,7 +140,7 @@ const PokerTable: React.FC<PokerTableProps> = ({
       <div className="relative z-10 flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-6xl h-full flex flex-col">
           {/* Table Grid Layout */}
-          <div className="flex-1 grid grid-cols-3 grid-rows-3 place-items-center min-h-[600px] gap-6">
+          <div className="flex-1 grid grid-cols-3 grid-rows-3 place-items-center min-h-[600px] gap-2">
             {/* Top row players */}
             {players[3] && (
               <PlayerSeat
